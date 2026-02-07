@@ -62,12 +62,25 @@ echo "Setting up CouchDB…"
 # Make sure docker hasn't stolen deploy’s directory
 chown deploy /home/deploy/web
 
-curl -X PUT http://"$COUCHDB_USER":"$COUCHDB_PASS"@localhost:5984/_users
-curl -X PUT http://"$COUCHDB_USER":"$COUCHDB_PASS"@localhost:5984/_replicator
+# Configure cluster as single node
+curl -X POST "${BASE_URL}/_cluster_setup" \
+  -H "Content-Type: application/json" \
+  -d "{\"action\":\"enable_single_node\",\"username\":\"${COUCHDB_USER}\",\"password\":\"${COUCHDB_PASSWORD}\",\"bind_address\":\"0.0.0.0\",\"port\":5984,\"singlenode\":true}"  \
+  --user "${COUCHDB_USER}:${COUCHDB_PASSWORD}"
+
+# Configure other parameters
+curl -X PUT "${CONFIG_URL}/chttpd/require_valid_user" -H "Content-Type: application/json" -d '"true"' --user "${COUCHDB_USER}:${COUCHDB_PASSWORD}"
+curl -X PUT "${CONFIG_URL}/chttpd/max_http_request_size" -H "Content-Type: application/json" -d '"4294967296"' --user "${COUCHDB_USER}:${COUCHDB_PASSWORD}"
+curl -X PUT "${CONFIG_URL}/couchdb/max_document_size" -H "Content-Type: application/json" -d '"50000000"' --user "${COUCHDB_USER}:${COUCHDB_PASSWORD}"
+
+# Create system databases
+curl -X PUT ${BASE_URL}/_users
+curl -X PUT ${BASE_URL}/_replicator
+curl -X PUT ${BASE_URL}/_global_changes
 
 if [ "$ENABLE_CORS" = "true" ]; then
-  curl -X PUT http://"$COUCHDB_USER":"$COUCHDB_PASS"@localhost:5984/_node/nonode@nohost/_config/chttpd/enable_cors -d '"true"'
-  curl -X PUT http://"$COUCHDB_USER":"$COUCHDB_PASS"@localhost:5984/_node/nonode@nohost/_config/cors/origins -d "\"$ALLOWED_ORIGINS\""
+  curl -X PUT ${CONFIG_URL}/chttpd/enable_cors -d '"true"'
+  curl -X PUT ${CONFIG_URL}/cors/origins -d "\"$ALLOWED_ORIGINS\""
 fi
 
 if [ "$COUCHDB_PATH" = "/" ]; then
