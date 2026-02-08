@@ -80,6 +80,21 @@ curl -X PUT "${BASE_URL}/_replicator"
 curl -X PUT "${BASE_URL}/_global_changes"
 
 
+# Create other user
+curl -X PUT "${BASE_URL}/_users/'org.couchdb.user:${COUCHDB_OTHER_USER}'" \
+  -H 'Content-Type: application/json' \
+  -d '{"_id": "org.couchdb.user:${COUCHDB_OTHER_USER}", "name": "${COUCHDB_OTHER_USER}", "type": "user", "roles": [], "password": "${COUCHDB_OTHER_PASS}"}'
+
+# Create db
+curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}"
+
+# Set security for new db
+curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}/_security" \
+  -H 'Content-type: application/json' \
+  -H 'Accept: application/json' \
+  -d '{"admins":{"roles":["_admin"]},"members":{"names": ["${COUCHDB_OTHER_USER}"]}}'
+
+
 if [ "$ENABLE_CORS" = "true" ]; then
   curl -X PUT ${CONFIG_URL}/chttpd/enable_cors -d '"true"'
   curl -X PUT ${CONFIG_URL}/cors/origins -d "\"$ALLOWED_ORIGINS\""
