@@ -12,6 +12,10 @@ set -a
 source .env
 set +a
 
+# Generated variables
+BASE_URL=http://${COUCHDB_USER}:${COUCHDB_PASS}@localhost:5984
+CONFIG_URL=${BASE_URL}/_node/_local/_config
+
 echo "Adding deploy user to server if necessary…"
 # Add deploy user if it doesn’t already exist
 id -u deploy >/dev/null 2>&1 || sudo useradd -m deploy
@@ -79,21 +83,8 @@ curl -X PUT "${BASE_URL}/_users"
 curl -X PUT "${BASE_URL}/_replicator"
 curl -X PUT "${BASE_URL}/_global_changes"
 
-
-# Create other user
-curl -X PUT "${BASE_URL}/_users/org.couchdb.user:${COUCHDB_OTHER_USER}" \
-  -H 'Content-Type: application/json' \
-  -d "{\"_id\": \"org.couchdb.user:${COUCHDB_OTHER_USER}\", \"name\": \"${COUCHDB_OTHER_USER}\", \"type\": \"user\", \"roles\": [], \"password\": \"${COUCHDB_OTHER_PASS}\"}"
-
-# Create db
-curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}"
-
-# Set security for new db
-curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}/_security" \
-  -H 'Content-type: application/json' \
-  -H 'Accept: application/json' \
-  -d "{\"admins\":{\"roles\":[\"_admin\"]},\"members\":{\"names\": [\"${COUCHDB_OTHER_USER}\"]}}"
-
+# Create database
+curl -X PUT "${BASE_URL}/${DB_NAME}"
 
 if [ "$ENABLE_CORS" = "true" ]; then
   curl -X PUT ${CONFIG_URL}/chttpd/enable_cors -d '"true"'
