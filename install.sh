@@ -81,9 +81,9 @@ curl -X PUT "${BASE_URL}/_global_changes"
 
 
 # Create other user
-curl -X PUT "${BASE_URL}/_users/'org.couchdb.user:${COUCHDB_OTHER_USER}'" \
+curl -X PUT "${BASE_URL}/_users/org.couchdb.user:${COUCHDB_OTHER_USER}" \
   -H 'Content-Type: application/json' \
-  -d '{"_id": "org.couchdb.user:${COUCHDB_OTHER_USER}", "name": "${COUCHDB_OTHER_USER}", "type": "user", "roles": [], "password": "${COUCHDB_OTHER_PASS}"}'
+  -d "{\"_id\": \"org.couchdb.user:${COUCHDB_OTHER_USER}\", \"name\": \"${COUCHDB_OTHER_USER}\", \"type\": \"user\", \"roles\": [], \"password\": \"${COUCHDB_OTHER_PASS}\"}"
 
 # Create db
 curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}"
