@@ -23,7 +23,7 @@ chown -R deploy:deploy /home/deploy/.ssh
 
 echo "Updating and installing required packages…"
 apt update
-apt install -y curl docker-compose
+apt install -y curl docker-compose jq
 
 echo "Setting up Letsencrypt…"
 mkdir -p ./data/etc/letsencrypt
