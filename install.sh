@@ -92,7 +92,7 @@ curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}"
 curl -X PUT "${BASE_URL}/${COUCHDB_OTHER_DB}/_security" \
   -H 'Content-type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"admins":{"roles":["_admin"]},"members":{"names": ["${COUCHDB_OTHER_USER}"]}}'
+  -d "{\"admins\":{\"roles\":[\"_admin\"]},\"members\":{\"names\": [\"${COUCHDB_OTHER_USER}\"]}}"
 
 
 if [ "$ENABLE_CORS" = "true" ]; then
